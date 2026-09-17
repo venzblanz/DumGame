@@ -1,0 +1,77 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\MyBlazorAppBlanza.bundle.scp.css",
+      "PackagePath": "staticwebassets\\MyBlazorAppBlanza.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\bg.png",
+      "PackagePath": "staticwebassets\\images\\bg.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\bg1.png",
+      "PackagePath": "staticwebassets\\images\\bg1.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\bg2.png",
+      "PackagePath": "staticwebassets\\images\\bg2.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\bg3.png",
+      "PackagePath": "staticwebassets\\images\\bg3.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\character.png",
+      "PackagePath": "staticwebassets\\images\\character.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\game1.png",
+      "PackagePath": "staticwebassets\\images\\game1.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\game2.png",
+      "PackagePath": "staticwebassets\\images\\game2.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\icon4.png",
+      "PackagePath": "staticwebassets\\images\\icon4.png"
+    },
+    {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\start.png",
+      "PackagePath": "staticwebassets\\images\\start.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.MyBlazorAppBlanza.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.MyBlazorAppBlanza.props",
+      "PackagePath": "build\\MyBlazorAppBlanza.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.MyBlazorAppBlanza.props",
+      "PackagePath": "buildMultiTargeting\\MyBlazorAppBlanza.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.MyBlazorAppBlanza.props",
+      "PackagePath": "buildTransitive\\MyBlazorAppBlanza.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

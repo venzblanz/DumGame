@@ -1,0 +1,296 @@
+@page "/tapgame"
+@rendermode InteractiveServer
+@using System.Timers
+@implements IDisposable
+
+<PageTitle>Tap Game</PageTitle>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .game-wrapper {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: url('images/bg.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .game-container {
+        width: 100%;
+        max-width: 420px;
+        position: relative;
+        user-select: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(6px);
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 24px;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #fff;
+        background: linear-gradient(135deg, rgba(255, 102, 153, 0.95), rgba(255, 71, 133, 0.95));
+        flex-shrink: 0;
+    }
+
+    .header span {
+        opacity: 0.8;
+        font-weight: 500;
+        font-size: 13px;
+        display: block;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        aspect-ratio: 4 / 5;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+    }
+
+    .tile {
+        width: 92%;
+        height: 92%;
+        border-radius: 12px;
+        background-color: #ff6699;
+        background-image: url('images/character.png');
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        transition: transform 0.08s ease;
+    }
+
+    .tile-error {
+        background-color: #ff3b3b;
+        background-image: none;
+        box-shadow: 0 0 20px rgba(255, 59, 59, 0.8);
+    }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(20, 20, 30, 0.75);
+        backdrop-filter: blur(4px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        gap: 6px;
+    }
+
+    .overlay h2 {
+        font-size: 26px;
+        margin: 0;
+        font-weight: 800;
+    }
+
+    .overlay p {
+        font-size: 16px;
+        opacity: 0.85;
+        margin: 0 0 10px 0;
+    }
+
+    .btn-start {
+        background: linear-gradient(135deg, #ff6699, #ff4785);
+        color: white;
+        border: none;
+        padding: 14px 36px;
+        font-size: 16px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-top: 14px;
+        box-shadow: 0 8px 20px rgba(255, 71, 133, 0.5);
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .btn-start:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 26px rgba(255, 71, 133, 0.6);
+    }
+
+    .btn-start:active {
+        transform: translateY(0);
+    }
+</style>
+
+<div class="game-wrapper">
+    <div class="game-container">
+        <div class="header">
+            <div><span>Time</span>@timeLeft</div>
+            <div><span>Score</span>@score</div>
+        </div>
+
+        <div class="grid">
+            @* Render from top to bottom (index 4 down to 0) *@
+            @for (int r = 4; r >= 0; r--)
+            {
+                int currentRow = r; // Local copy for the lambda expression
+                for (int c = 0; c < 4; c++)
+                {
+                    int currentCol = c;
+                    <div class="cell" @onclick="() => TapTile(currentRow, currentCol)">
+                        @if (rows.Count > currentRow && rows[currentRow] == currentCol)
+                        {
+                            <div class="tile"></div>
+                        }
+                        @if (errorRow == currentRow && errorCol == currentCol)
+                        {
+                            <div class="tile tile-error"></div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        @if (!isPlaying)
+        {
+            <div class="overlay">
+                @if (score > 0)
+                {
+                    <h2>Game Over!</h2>
+                    <p>Score: @score</p>
+                }
+                <button class="btn-start" @onclick="StartGame">
+                    @(score > 0 ? "Play Again" : "Start Game")
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private int timeLeft = 20;
+    private int score = 0;
+    private bool isPlaying = false;
+
+    // Each index represents a row (0 is the bottom row).
+    // The integer value is the column index (0-3) where the tile is.
+    private List<int> rows = new();
+
+    private Timer? timer;
+    private Random rand = new Random();
+
+    private int errorRow = -1;
+    private int errorCol = -1;
+
+    protected override void OnInitialized()
+    {
+        InitializeGrid();
+    }
+
+    private void InitializeGrid()
+    {
+        rows.Clear();
+        errorRow = -1;
+        errorCol = -1;
+
+        // Populate the 5 visible rows
+        for (int i = 0; i < 5; i++)
+        {
+            rows.Add(rand.Next(0, 4));
+        }
+    }
+
+    private void StartGame()
+    {
+        InitializeGrid();
+        score = 0;
+        timeLeft = 20;
+        isPlaying = true;
+
+        if (timer != null)
+        {
+            timer.Dispose();
+        }
+
+        timer = new Timer(1000);
+        timer.Elapsed += CountDown;
+        timer.Start();
+    }
+
+    private void TapTile(int rowIndex, int colIndex)
+    {
+        if (!isPlaying) return;
+
+        // In this game mode, you must always tap the bottom-most active tile (rowIndex 0)
+        if (rowIndex == 0)
+        {
+            if (rows[0] == colIndex)
+            {
+                // Correct tap! Remove the bottom row and add a new one at the top.
+                score++;
+                rows.RemoveAt(0);
+                rows.Add(rand.Next(0, 4));
+            }
+            else
+            {
+                // Wrong tap in the target row
+                errorRow = rowIndex;
+                errorCol = colIndex;
+                EndGame();
+            }
+        }
+        else if (rows[rowIndex] != colIndex)
+        {
+            // Tapped an empty space somewhere else
+            errorRow = rowIndex;
+            errorCol = colIndex;
+            EndGame();
+        }
+    }
+
+    private void CountDown(object? sender, ElapsedEventArgs e)
+    {
+        if (timeLeft > 1)
+        {
+            timeLeft--;
+            InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            timeLeft = 0;
+            EndGame();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void EndGame()
+    {
+        isPlaying = false;
+        timer?.Stop();
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}
