@@ -12,11 +12,14 @@
     --color-pink-400: oklch(71.8% 0.202 349.761);
     --color-pink-500: oklch(65.6% 0.241 354.308);
     --color-pink-600: oklch(59.2% 0.249 0.584);
+    --color-gray-500: oklch(55.1% 0.027 264.364);
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
     --text-base: 1rem;
     --text-base--line-height: calc(1.5 / 1);
+    --text-3xl: 1.875rem;
+    --text-3xl--line-height: calc(2.25 / 1.875);
     --text-4xl: 2.25rem;
     --text-4xl--line-height: calc(2.5 / 2.25);
     --font-weight-medium: 500;
@@ -25,6 +28,7 @@
     --tracking-wide: 0.025em;
     --tracking-widest: 0.1em;
     --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
     --radius-3xl: 1.5rem;
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -232,11 +236,23 @@
   .top-0 {
     top: 0px;
   }
+  .top-2 {
+    top: calc(var(--spacing) * 2);
+  }
+  .top-6 {
+    top: calc(var(--spacing) * 6);
+  }
+  .top-10 {
+    top: calc(var(--spacing) * 10);
+  }
   .top-50 {
     top: calc(var(--spacing) * 50);
   }
   .top-100 {
     top: calc(var(--spacing) * 100);
+  }
+  .right-10 {
+    right: calc(var(--spacing) * 10);
   }
   .bottom-0 {
     bottom: 0px;
@@ -247,8 +263,17 @@
   .bottom-100 {
     bottom: calc(var(--spacing) * 100);
   }
+  .left-0 {
+    left: 0px;
+  }
+  .left-10 {
+    left: calc(var(--spacing) * 10);
+  }
   .z-10 {
     z-index: 10;
+  }
+  .z-50 {
+    z-index: 50;
   }
   .order-0 {
     order: 0;
@@ -496,6 +521,9 @@
   .mb-auto {
     margin-bottom: auto;
   }
+  .ml-8 {
+    margin-left: calc(var(--spacing) * 8);
+  }
   .block {
     display: block;
   }
@@ -532,6 +560,24 @@
   .aspect-\[4\/5\] {
     aspect-ratio: 4/5;
   }
+  .h-0 {
+    height: 0px;
+  }
+  .h-2 {
+    height: calc(var(--spacing) * 2);
+  }
+  .h-8 {
+    height: calc(var(--spacing) * 8);
+  }
+  .h-10 {
+    height: calc(var(--spacing) * 10);
+  }
+  .h-15 {
+    height: calc(var(--spacing) * 15);
+  }
+  .h-20 {
+    height: calc(var(--spacing) * 20);
+  }
   .h-25 {
     height: calc(var(--spacing) * 25);
   }
@@ -558,6 +604,15 @@
   }
   .min-h-screen {
     min-height: 100vh;
+  }
+  .w-8 {
+    width: calc(var(--spacing) * 8);
+  }
+  .w-15 {
+    width: calc(var(--spacing) * 15);
+  }
+  .w-20 {
+    width: calc(var(--spacing) * 20);
   }
   .w-25 {
     width: calc(var(--spacing) * 25);
@@ -723,6 +778,14 @@
   .rounded-xl {
     border-radius: var(--radius-xl);
   }
+  .rounded-b-2xl {
+    border-bottom-right-radius: var(--radius-2xl);
+    border-bottom-left-radius: var(--radius-2xl);
+  }
+  .rounded-b-3xl {
+    border-bottom-right-radius: var(--radius-3xl);
+    border-bottom-left-radius: var(--radius-3xl);
+  }
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
@@ -769,6 +832,15 @@
   }
   .bg-black {
     background-color: var(--color-black);
+  }
+  .bg-gray-500 {
+    background-color: var(--color-gray-500);
+  }
+  .bg-gray-500\/40 {
+    background-color: color-mix(in srgb, oklch(55.1% 0.027 264.364) 40%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-gray-500) 40%, transparent);
+    }
   }
   .bg-pink-500 {
     background-color: var(--color-pink-500);
@@ -881,6 +953,15 @@
   .px-9 {
     padding-inline: calc(var(--spacing) * 9);
   }
+  .px-10 {
+    padding-inline: calc(var(--spacing) * 10);
+  }
+  .px-15 {
+    padding-inline: calc(var(--spacing) * 15);
+  }
+  .px-41 {
+    padding-inline: calc(var(--spacing) * 41);
+  }
   .py-0 {
     padding-block: 0px;
   }
@@ -901,6 +982,9 @@
   }
   .py-5 {
     padding-block: calc(var(--spacing) * 5);
+  }
+  .py-10 {
+    padding-block: calc(var(--spacing) * 10);
   }
   .py-\[18px\] {
     padding-block: 18px;
@@ -959,6 +1043,9 @@
   .pt-5 {
     padding-top: calc(var(--spacing) * 5);
   }
+  .pt-14 {
+    padding-top: calc(var(--spacing) * 14);
+  }
   .pb-0 {
     padding-bottom: 0px;
   }
@@ -1004,8 +1091,18 @@
   .align-top {
     vertical-align: top;
   }
+  .font-\[\'Press_Start_2P\'\,_cursive\] {
+    font-family: 'Press Start 2P', cursive;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
   .font-sans {
     font-family: var(--font-sans);
+  }
+  .text-3xl {
+    font-size: var(--text-3xl);
+    line-height: var(--tw-leading, var(--text-3xl--line-height));
   }
   .text-4xl {
     font-size: var(--text-4xl);

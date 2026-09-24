@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "KtKvQ3NAoibV/76Yp4f6tihLrhFOPh/fClcCJPzx184=",
+  "Hash": "94K/XTDh4fOPTkwo24PdGjlEkl8U+E/tHzKYRomOLBE=",
   "Source": "MyBlazorAppBlanza",
   "BasePath": "_content/MyBlazorAppBlanza",
   "Mode": "Default",
@@ -281,6 +281,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\game2.png"
+    },
+    {
+      "Identity": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\home_icon.png",
+      "SourceId": "MyBlazorAppBlanza",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\",
+      "BasePath": "_content/MyBlazorAppBlanza",
+      "RelativePath": "images/home_icon.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\home_icon.png"
     },
     {
       "Identity": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\icon4.png",

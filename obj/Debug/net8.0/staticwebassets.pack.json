@@ -53,6 +53,10 @@
       "PackagePath": "staticwebassets\\images\\game2.png"
     },
     {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\home_icon.png",
+      "PackagePath": "staticwebassets\\images\\home_icon.png"
+    },
+    {
       "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\icon4.png",
       "PackagePath": "staticwebassets\\images\\icon4.png"
     },

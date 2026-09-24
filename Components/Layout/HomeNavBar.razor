@@ -1,0 +1,16 @@
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<div class="fixed top-6 left-0 w-full h-20 flex items-center px-15 py-3">
+    <button class="bg-transparent border-none p-0 cursor-pointer" @onclick="GoHome" aria-label="Home">
+        <img src="images/home_icon.png" alt="Home" class="w-20 h-20 rounded-3xl object-contain border-2" />
+    </button>
+    <h1 class="text-black text-3xl font-['Press_Start_2P',_cursive] tracking-widest ml-8 select-none">DUMGAME</h1>
+</div>
+
+@code {
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}
