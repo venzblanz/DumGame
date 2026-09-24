@@ -61,6 +61,10 @@
       "PackagePath": "staticwebassets\\images\\icon4.png"
     },
     {
+      "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\icon_char.png",
+      "PackagePath": "staticwebassets\\images\\icon_char.png"
+    },
+    {
       "Id": "C:\\Users\\L23Y16W07\\MyBlazorAppBlanza\\wwwroot\\images\\start.png",
       "PackagePath": "staticwebassets\\images\\start.png"
     },

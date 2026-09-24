@@ -1,64 +1,231 @@
-﻿@page "/weather"
+﻿@page "/dinorun"
 @attribute [StreamRendering]
+@rendermode InteractiveServer
+@implements IDisposable
+@using System.Threading
 
-<PageTitle>Weather</PageTitle>
+<div class="min-h-screen w-full flex flex-col justify-center items-center gap-4 bg-cover bg-center bg-no-repeat bg-[url('/images/bg3.png')] font-sans p-4">
 
-<h1>Weather</h1>
+    <div class="flex justify-between w-full max-w-2xl px-2 text-white font-bold text-lg drop-shadow">
+        <span>Score: @score</span>
+        <span>Best: @bestScore</span>
+    </div>
 
-<p>This component demonstrates showing data.</p>
+    <div class="relative w-full max-w-2xl h-72 mx-auto overflow-hidden rounded-xl bg-gradient-to-b from-sky-200 to-sky-50 border-4 border-gray-800 shadow-2xl select-none"
+         tabindex="0"
+         @onkeydown="HandleKeyDown"
+         @onclick="Jump">
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
+        <!-- Ground line -->
+        <div class="absolute left-0 right-0 bg-gray-800" style="bottom:@(GroundHeight)px; height:3px;"></div>
+
+        <!-- Character -->
+        <div class="absolute rounded-full overflow-hidden border-2 border-gray-800 bg-white shadow-md"
+             style="left:@(CharLeft)px; bottom:@(GroundHeight + charY)px; width:@(CharSize)px; height:@(CharSize)px;">
+            <img src="images/icon_char.png" alt="char" class="w-full h-full object-cover rounded-full" />
+        </div>
+
+        <!-- Obstacles (CSS only, no images) -->
+        @foreach (var obs in obstacles)
+        {
+            @if (obs.Shape == ObstacleShape.Spike)
             {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
+                <div @key="obs.Id" class="absolute bg-gray-800"
+                     style="left:@(obs.X)px; bottom:@(GroundHeight)px; width:@(obs.Width)px; height:@(obs.Height)px; clip-path: polygon(50% 0%, 0% 100%, 100% 100%);">
+                </div>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <div @key="obs.Id" class="absolute bg-gray-700 rounded-sm border border-gray-900"
+                     style="left:@(obs.X)px; bottom:@(GroundHeight)px; width:@(obs.Width)px; height:@(obs.Height)px;">
+                </div>
+            }
+        }
+
+        <!-- Overlays -->
+        @if (state == GameState.Ready)
+        {
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/30">
+                <p class="text-white font-bold text-xl drop-shadow">Tap / Click / Space to jump</p>
+                <button class="px-5 py-2 bg-white rounded-lg font-bold shadow hover:scale-105 transition-transform" @onclick="StartGame" @onclick:stopPropagation="true">
+                    Start Game
+                </button>
+            </div>
+        }
+        else if (state == GameState.GameOver)
+        {
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/40">
+                <p class="text-white font-bold text-2xl drop-shadow">Game Over</p>
+                <p class="text-white/90 drop-shadow">Score: @score</p>
+                <button class="px-5 py-2 bg-white rounded-lg font-bold shadow hover:scale-105 transition-transform" @onclick="StartGame" @onclick:stopPropagation="true">
+                    Restart
+                </button>
+            </div>
+        }
+    </div>
+</div>
 
 @code {
-    private WeatherForecast[]? forecasts;
+    // ---- layout constants (px), matched to the max-w-2xl (672px) container ----
+    private const double GameWidth = 672;
+    private const double GroundHeight = 20;
+    private const double CharSize = 56;
+    private const double CharLeft = 36;
 
-    protected override async Task OnInitializedAsync()
+    // ---- physics ----
+    private const double Gravity = 2600;       // px/s^2
+    private const double JumpVelocity = 850;   // px/s
+    private const double TickMs = 20;          // ~50fps
+    private const double BaseSpeed = 260;      // px/s
+    private double speed = BaseSpeed;
+
+    private enum GameState { Ready, Playing, GameOver }
+    private enum ObstacleShape { Spike, Block }
+
+    private class Obstacle
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public double X { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public ObstacleShape Shape { get; set; }
     }
 
-    private class WeatherForecast
+    private GameState state = GameState.Ready;
+    private List<Obstacle> obstacles = new();
+    private double charY = 0;
+    private double charVelocity = 0;
+    private int score = 0;
+    private int bestScore = 0;
+    private double timeSinceSpawn = 0;
+    private double nextSpawnGap = 900;
+    private Random random = new();
+    private Timer? gameTimer;
+    private double elapsedSeconds = 0;
+
+    private void StartGame()
     {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        obstacles.Clear();
+        charY = 0;
+        charVelocity = 0;
+        score = 0;
+        speed = BaseSpeed;
+        timeSinceSpawn = 0;
+        elapsedSeconds = 0;
+        nextSpawnGap = 900;
+        state = GameState.Playing;
+
+        gameTimer?.Dispose();
+        gameTimer = new Timer(_ => InvokeAsync(GameTick), null, 0, (int)TickMs);
+    }
+
+    private void Jump()
+    {
+        if (state == GameState.Ready)
+        {
+            StartGame();
+            return;
+        }
+        if (state == GameState.GameOver)
+        {
+            StartGame();
+            return;
+        }
+        if (charY <= 0.01)
+        {
+            charVelocity = JumpVelocity;
+        }
+    }
+
+    private void HandleKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (e.Key == " " || e.Key == "ArrowUp" || e.Code == "Space")
+        {
+            Jump();
+        }
+    }
+
+    private void GameTick()
+    {
+        if (state != GameState.Playing) return;
+        double dt = TickMs / 1000.0;
+        elapsedSeconds += dt;
+
+        // gravity / jump physics
+        charVelocity -= Gravity * dt;
+        charY += charVelocity * dt;
+        if (charY <= 0)
+        {
+            charY = 0;
+            charVelocity = 0;
+        }
+
+        // difficulty ramps up slowly over time
+        speed = BaseSpeed + (elapsedSeconds * 12);
+
+        // move obstacles
+        foreach (var obs in obstacles)
+        {
+            obs.X -= speed * dt;
+        }
+        obstacles.RemoveAll(o => o.X + o.Width < 0);
+
+        // spawn new obstacles
+        timeSinceSpawn += dt * 1000;
+        if (timeSinceSpawn >= nextSpawnGap)
+        {
+            timeSinceSpawn = 0;
+            nextSpawnGap = random.Next(700, 1400);
+            SpawnObstacle();
+        }
+
+        // collision detection (simple AABB)
+        double charLeftEdge = CharLeft;
+        double charRightEdge = CharLeft + CharSize;
+        double charBottomEdge = charY;
+        double charTopEdge = charY + CharSize;
+
+        foreach (var obs in obstacles)
+        {
+            double obsLeft = obs.X;
+            double obsRight = obs.X + obs.Width;
+            bool overlapX = charRightEdge > obsLeft && charLeftEdge < obsRight;
+            bool overlapY = charBottomEdge < obs.Height; // hasn't jumped above obstacle
+            if (overlapX && overlapY)
+            {
+                EndGame();
+                break;
+            }
+        }
+
+        // score
+        score = (int)(elapsedSeconds * 10);
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SpawnObstacle()
+    {
+        bool isSpike = random.Next(0, 2) == 0;
+        obstacles.Add(new Obstacle
+        {
+            X = GameWidth,
+            Width = isSpike ? random.Next(24, 34) : random.Next(20, 30),
+            Height = isSpike ? random.Next(35, 55) : random.Next(30, 60),
+            Shape = isSpike ? ObstacleShape.Spike : ObstacleShape.Block
+        });
+    }
+
+    private void EndGame()
+    {
+        state = GameState.GameOver;
+        if (score > bestScore) bestScore = score;
+        gameTimer?.Dispose();
+        gameTimer = null;
+    }
+
+    public void Dispose()
+    {
+        gameTimer?.Dispose();
     }
 }
