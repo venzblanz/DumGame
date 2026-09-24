@@ -27,3 +27,6 @@ C:\Users\L23Y16W07\MyBlazorAppBlanza\obj\Debug\net8.0\refint\MyBlazorAppBlanza.d
 C:\Users\L23Y16W07\MyBlazorAppBlanza\obj\Debug\net8.0\MyBlazorAppBlanza.pdb
 C:\Users\L23Y16W07\MyBlazorAppBlanza\obj\Debug\net8.0\MyBlazorAppBlanza.genruntimeconfig.cache
 C:\Users\L23Y16W07\MyBlazorAppBlanza\obj\Debug\net8.0\ref\MyBlazorAppBlanza.dll
+C:\Users\L23Y16W07\MyBlazorAppBlanza\obj\Debug\net8.0\MyBlazorAppBlanza.sourcelink.json
+C:\Users\L23Y16W07\MyBlazorAppBlanza\bin\Debug\net8.0\package-lock.json
+C:\Users\L23Y16W07\MyBlazorAppBlanza\bin\Debug\net8.0\package.json

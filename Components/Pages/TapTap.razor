@@ -2,94 +2,38 @@
 @rendermode InteractiveServer
 @using System.Threading.Tasks
 
-<div class="taptap-container">
+<div class="min-h-screen w-full flex justify-center items-center bg-cover bg-center bg-no-repeat bg-[url('/images/bg3.png')] font-sans">
     <!-- The flying particles -->
     @foreach (var ball in activeBalls)
     {
         <div @key="ball.Id" class="small-ball" style="--tx: @(ball.TargetX)px; --ty: @(ball.TargetY)px;">
-            <img src="images/icon4.png" alt="small icon" />
+            <img src="images/icon4.png" alt="small icon" class="w-full h-full rounded-full object-cover border-2 border-white bg-white" />
         </div>
     }
 
     <!-- The main clickable center icon -->
-    <div class="center-content">
-        <button class="main-icon-button" @onclick="OnMainIconClicked">
-            <img src="images/icon4.png" alt="Main Icon" class="main-icon" />
+    <div class="z-10 relative">
+        <button class="bg-transparent border-none p-0 cursor-pointer transition-transform duration-100 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] drop-shadow-[0px_10px_20px_rgba(0,0,0,0.6)] active:scale-90 active:drop-shadow-[0px_5px_10px_rgba(0,0,0,0.4)]"
+                @onclick="OnMainIconClicked">
+            <img src="images/icon4.png" alt="Main Icon" class="w-52 h-52 rounded-3xl object-cover" />
         </button>
     </div>
 </div>
 
 <style>
-    .taptap-container {
-        min-height: 100vh;
-        width: 100%;
-        margin: -1.5rem; /* Offsets default Blazor MainLayout padding */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        
-        /* Nighttime fallback color and background image */
-        background-color: #0b1a2a; 
-        background-image: url('images/bg3.png'); /* Replace bg3.png with your night background */
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        
-        position: relative;
-        overflow: hidden;
-    }
-
-    .center-content {
-        z-index: 10;
-        position: relative;
-    }
-
-    .main-icon-button {
-        background: transparent;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.6));
-    }
-
-    .main-icon-button:active {
-        transform: scale(0.9);
-        filter: drop-shadow(0px 5px 10px rgba(0, 0, 0, 0.4));
-    }
-
-    .main-icon {
-        width: 200px;
-        height: 200px;
-        border-radius: 24px;
-        object-fit: cover;
-    }
-
-    /* Small Ball Particles */
+    /* Kept as plain CSS: the animation target (--tx, --ty) is set dynamically
+       per-particle from C#, which Tailwind's static utility classes can't express. */
     .small-ball {
         position: absolute;
         top: 50%;
         left: 50%;
         width: 70px;
         height: 70px;
-        margin-top: -35px; /* Offset by half height/width to start exactly at center */
+        margin-top: -35px;
         margin-left: -35px;
-        border-radius: 50%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        pointer-events: none; /* Prevents balls from blocking clicks to the main button */
+        pointer-events: none;
         z-index: 20;
-        
-        /* The animation uses the custom properties --tx and --ty set inline by Blazor */
         animation: burst 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-    }
-
-    .small-ball img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid white;
-        background-color: white; /* In case the png has transparency */
     }
 
     @@keyframes burst {
@@ -119,7 +63,6 @@
             var ball = new BallParticle
             {
                 Id = Guid.NewGuid(),
-                // Generate a random trajectory target for the CSS animation
                 TargetX = random.Next(-300, 301),
                 TargetY = random.Next(-300, 301)
             };
@@ -127,22 +70,18 @@
             newlySpawnedBalls.Add(ball);
         }
 
-        // Fire and forget the cleanup task so it doesn't block the UI
         _ = CleanupBallsAsync(newlySpawnedBalls);
     }
 
     private async Task CleanupBallsAsync(List<BallParticle> ballsToRemove)
     {
-        // Wait for the CSS animation to complete (0.8s)
-        await Task.Delay(850); 
+        await Task.Delay(850);
 
-        // Remove the finished particles from the DOM
         foreach (var ball in ballsToRemove)
         {
             activeBalls.Remove(ball);
         }
-        
-        // Notify Blazor to re-render and clear the old HTML elements
+
         await InvokeAsync(StateHasChanged);
     }
 
