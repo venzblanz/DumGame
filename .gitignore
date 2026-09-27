@@ -1,6 +1,6 @@
 ﻿bin/
 obj/
 node_modules/
-git a.vs/
+.vs/
 .vscode/
 *.user
