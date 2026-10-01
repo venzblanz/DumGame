@@ -2,32 +2,37 @@
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
 
-<div class="min-h-screen w-full flex justify-center items-center bg-cover bg-center bg-no-repeat bg-[url('/images/bg2.png')] font-sans">
-    <div class="z-10 flex flex-col sm:flex-row items-center gap-8 sm:gap-12">
-        <!-- Left Icon: Redirects to /tapgame -->
-        <button class="bg-transparent border-none p-0 cursor-pointer transition-transform duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] drop-shadow-[0px_10px_15px_rgba(0,0,0,0.5)] hover:scale-[1.08] hover:drop-shadow-[0px_15px_20px_rgba(0,0,0,0.6)] active:scale-95 active:drop-shadow-[0px_5px_8px_rgba(0,0,0,0.4)]"
-                @onclick='() => NavigateToGame("/tapgame")'
-                aria-label="Play Game 1">
-            <img src="images/game1.png" alt="Game 1" class="w-56 h-auto rounded-[28px] object-contain" />
-        </button>
+<PageTitle>Pick a game - DumGame</PageTitle>
 
-        <!-- Right Icon: Redirects to /taptap -->
-        <button class="bg-transparent border-none p-0 cursor-pointer transition-transform duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] drop-shadow-[0px_10px_15px_rgba(0,0,0,0.5)] hover:scale-[1.08] hover:drop-shadow-[0px_15px_20px_rgba(0,0,0,0.6)] active:scale-95 active:drop-shadow-[0px_5px_8px_rgba(0,0,0,0.4)]"
-                @onclick='() => NavigateToGame("/taptap")'
-                aria-label="Play Game 2">
-            <img src="images/game2.png" alt="Game 2" class="w-56 h-auto rounded-[28px] object-contain" />
-        </button>
-        <button class="bg-transparent border-none p-0 cursor-pointer transition-transform duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] drop-shadow-[0px_10px_15px_rgba(0,0,0,0.5)] hover:scale-[1.08] hover:drop-shadow-[0px_15px_20px_rgba(0,0,0,0.6)] active:scale-95 active:drop-shadow-[0px_5px_8px_rgba(0,0,0,0.4)]"
-                @onclick='() => NavigateToGame("/dinorun")'
-                aria-label="Play Game 3">
-            <img src="images/icon_char.png" alt="Game 2" class="w-56 h-auto rounded-[28px] object-contain" />
-        </button>
+<div class="min-h-screen w-full flex items-center justify-center bg-[url('/images/bg2.png')] bg-cover bg-center bg-no-repeat font-sans px-6 py-10">
+
+    <div class="w-full max-w-5xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl p-6 select-none mt-10">
+        <h1 class="text-white text-xl font-bold uppercase tracking-wide mb-4">Games</h1>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 overflow-y-auto max-h-[60vh] pr-2">
+            @foreach (var game in _games)
+            {
+                
+                <button @onclick="() => Navigation.NavigateTo(game.Route)"
+                        class="group relative rounded-2xl overflow-hidden shadow-lg cursor-pointer transition-transform active:scale-95">
+                    <img src="@game.Image" alt="@game.Title" class="w-full h-full object-cover border-5 rounded-4xl hover:scale-[1.03]" />
+
+                    <span class="absolute bottom-0 inset-x-10 flex items-center justify-center gap-1.5 bg-gradient-to-r from-indigo-900/40 to-purple-900/40 group-hover:bg-black/80 backdrop-blur-sm py-2 text-white text-sm font-semibold transition-colors rounded-4xl border-2 border-black">
+                        
+                        <span class="w-0 h-0 border-y-[5px] border-y-transparent border-l-[8px] border-l-white"></span>
+                        Play
+                    </span>
+                </button>
+            }
+        </div>
     </div>
 </div>
 
 @code {
-    private void NavigateToGame(string route)
+    private readonly List<(string Title, string Image, string Route)> _games = new()
     {
-        Navigation.NavigateTo(route);
-    }
+        ("Tap Game", "images/game1.png", "/tapgame"),
+        ("Tap Tap", "images/game2.png", "/taptap"),
+        ("Guardian Run", "images/icon_char.png", "/guardianrun"),
+    };
 }
