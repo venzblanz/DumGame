@@ -1,4 +1,4 @@
-namespace MyBlazorAppBlanza.Components.Models;
+namespace MyBlazorAppBlanza.Models;
 
 public class Score
 {
