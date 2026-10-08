@@ -1,0 +1,34 @@
+@rendermode InteractiveServer
+@implements IDisposable
+@inject NavigationManager Navigation
+
+@if (!IsOnFeedback)
+{
+    <button @onclick='() => Navigation.NavigateTo("/feedback")'
+            title="Rate & Comment"
+            aria-label="Rate and comment"
+            class="fixed bottom-4 right-4 z-50 w-14 h-14 flex items-center justify-center rounded-full bg-gray-500/40 backdrop-blur-sm shadow-lg cursor-pointer hover:scale-110 active:scale-95 transition-transform">
+        <img src="images/rate_icon.png" alt="Rate" class="object-contain " />
+    </button>
+}
+
+@code {
+    private bool IsOnFeedback =>
+        Navigation.ToBaseRelativePath(Navigation.Uri)
+                  .StartsWith("feedback", StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}
