@@ -4,24 +4,31 @@
 
 <PageTitle>Pick a game - DumGame</PageTitle>
 
-<div class="min-h-screen w-full flex items-center justify-center bg-[url('/images/bg2.png')] bg-cover bg-center bg-no-repeat font-sans px-6 py-10">
+<div class="dg-page">
+    <div class="dg-card w-full max-w-5xl p-6 sm:p-8 dg-rise">
+        <div class="flex items-end justify-between mb-6">
+            <div>
+                <p class="dg-eyebrow">DumGame</p>
+                <h1 class="dg-title text-3xl">Pick a game</h1>
+            </div>
+            <span class="dg-chip"><b>@_games.Count</b> games</span>
+        </div>
 
-    <div class="w-full max-w-5xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 backdrop-blur-md border-3 border-white rounded-3xl shadow-2xl p-6 select-none mt-10">
-        <h1 class="text-white text-xl font-bold uppercase tracking-wide mb-4">Games</h1>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 overflow-y-auto max-h-[60vh] pr-2">
-            @foreach (var game in _games)
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 overflow-y-auto max-h-[60vh] p-1">
+            @foreach (var (game, i) in _games.Select((g, i) => (g, i)))
             {
-                
                 <button @onclick="() => Navigation.NavigateTo(game.Route)"
-                        class="group relative rounded-2xl overflow-hidden shadow-lg cursor-pointer transition-transform active:scale-95">
-                    <img src="@game.Image" alt="@game.Title" class="w-full h-full object-cover border-4 rounded-4xl hover:scale-[1.03]" />
-
-                    <span class="absolute bottom-0 inset-x-4 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-900/40 to-purple-900/40 group-hover:bg-black/80 backdrop-blur-sm py-2 text-white text-sm font-semibold transition-colors rounded-4xl border-2 border-white">
-                        
-                        <span class="w-0 h-0 border-y-[5px] border-y-transparent border-l-[8px] border-l-white"></span>
-                        Play
-                    </span>
+                        class="dg-tile group text-left dg-rise"
+                        style="animation-delay:@(i * 90)ms">
+                    <div class="relative aspect-square overflow-hidden rounded-xl">
+                        <img src="@game.Image" alt="@game.Title"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <span class="dg-play">
+                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="currentColor"><path d="M6 3l14 9-14 9z" /></svg>
+                            Play
+                        </span>
+                    </div>
+                    <div class="px-1 pt-3 pb-1 font-semibold">@game.Title</div>
                 </button>
             }
         </div>

@@ -1,34 +1,42 @@
 @rendermode InteractiveServer
+@implements IDisposable
+@using Microsoft.AspNetCore.Components.Routing
 @inject NavigationManager Navigation
 
 @if (!IsOnHome)
 {
-    <div class="fixed top-4 left-4 right-4 z-100 flex items-center justify-between px-4 py-2 rounded-2xl bg-gradient-to-r from-indigo-900/70 to-purple-900/70 backdrop-blur-md border-2 border-white shadow-lg">
-
-        <div class="flex items-center gap-3">
-            <img src="images/home_icon.png" alt="Logo" class="w-9 h-9 rounded-full object-cover ring-2 ring-white/30" />
-            <button @onclick="GoHome"
-                aria-label="Home"
-                title="Home" class="active:scale-95 transition">
-                <span class="text-white font-extrabold tracking-wide text-lg uppercase select-none">DumGame</span>
-            </button>
-            
-        </div>
-
-        <button @onclick="GoSettings"
-                aria-label="Settings"
-                title="Settings"
-                class="w-6 h-6 flex items-center justify-center rounded-full active:scale-95 transition">
-            <img src="images/settings_white.png" alt="Home" class=" object-contain" />
+    <header class="dg-nav">
+        <button class="dg-nav-brand" @onclick="GoHome" aria-label="Home" title="Home">
+            <img src="images/home_icon.png" alt="Logo" />
+            <span>Dum<b>Game</b></span>
         </button>
-    </div>
+
+        <nav class="dg-nav-links">
+            <button class="@LinkClass("pick")" @onclick='() => Go("/pick")'>Games</button>
+            <button class="@LinkClass("feedback")" @onclick='() => Go("/feedback")'>Feedback</button>
+            <button class="dg-nav-icon" @onclick="GoSettings" aria-label="Settings" title="Settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+            </button>
+        </nav>
+    </header>
 }
 
-
-
 @code {
-    private bool IsOnHome =>
-        Navigation.ToBaseRelativePath(Navigation.Uri).Trim('/').Length == 0;
+    private string CurrentPath => Navigation.ToBaseRelativePath(Navigation.Uri).Trim('/');
+    private bool IsOnHome => CurrentPath.Length == 0;
+
+    // "Games" also counts as active on the individual game pages
+    private static readonly string[] GameRoutes = { "pick", "tapgame", "taptap", "guardianrun" };
+
+    private string LinkClass(string route)
+    {
+        bool active = route == "pick" ? GameRoutes.Contains(CurrentPath, StringComparer.OrdinalIgnoreCase)
+                                      : CurrentPath.Equals(route, StringComparison.OrdinalIgnoreCase);
+        return active ? "dg-nav-link active" : "dg-nav-link";
+    }
 
     protected override void OnInitialized()
     {
@@ -45,12 +53,9 @@
         Navigation.LocationChanged -= OnLocationChanged;
     }
 
-    private void GoHome()
-    {
-        Navigation.NavigateTo("/");
-    }
-    private void GoSettings()
-    {
-        Navigation.NavigateTo("/");
-    }
+    private void Go(string route) => Navigation.NavigateTo(route);
+    private void GoHome() => Navigation.NavigateTo("/");
+
+    // TODO: your original sent Settings to "/" (which also hides this bar). Point it at a real route.
+    private void GoSettings() => Navigation.NavigateTo("/");
 }

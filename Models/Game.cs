@@ -1,12 +1,20 @@
+using Supabase.Postgrest.Attributes;
+using Supabase.Postgrest.Models;
+
 namespace MyBlazorAppBlanza.Models;
 
-public class Game
+[Table("games")]
+public class Game : BaseModel
 {
-    public int GameId { get; set; }
-    public string GameName { get; set; } = string.Empty;
-    public string ThumbnailImg { get; set; } = string.Empty;
-    public string Route { get; set; } = string.Empty;
+    [PrimaryKey("id", false)]
+    public long Id { get; set; }
 
-    // One game has many scores
-    public List<Score> Scores { get; set; } = new();
+    [Column("game_name")]
+    public string GameName { get; set; } = "";
+
+    [Column("thumbnail_img")]
+    public string ThumbnailImg { get; set; } = "";
+
+    [Column("route")]
+    public string Route { get; set; } = "";
 }

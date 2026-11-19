@@ -3,37 +3,38 @@
 @using System.Timers
 @implements IDisposable
 
-<PageTitle>Tap Game</PageTitle>
+<PageTitle>Tap Game - DumGame</PageTitle>
 
-<div class="min-h-screen w-full flex justify-center items-center bg-[url('/images/bg4.png')] bg-cover bg-center bg-no-repeat font-sans">
-    <div class="mt-20 w-full max-w-[330px] relative select-none rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)] backdrop-blur-[6px] border-2 border-white">
-        <div class="flex justify-between items-center px-6 py-[18px] text-[22px] font-bold tracking-wide text-white bg-gradient-to-r from-indigo-900/70 to-purple-900/70 backdrop-blur-md shrink-0">
-            <div>
-                <span class="opacity-80 font-medium text-[13px] block mb-0.5 uppercase tracking-widest">Time</span>
-                @timeLeft
-            </div>
-            <div>
-                <span class="opacity-80 font-medium text-[13px] block mb-0.5 uppercase tracking-widest">Score</span>
-                @score
-            </div>
+<div class="dg-page">
+    <a href="/pick" class="dg-back">
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        Games
+    </a>
+
+    <div class="dg-card relative w-full max-w-[340px] overflow-hidden dg-rise">
+        <div class="dg-hud">
+            <div><small>Time</small><b>@timeLeft</b></div>
+            <div class="text-right"><small>Score</small><b>@score</b></div>
         </div>
+        <div class="dg-bar"><i style="width:@(timeLeft * 100 / 20)%"></i></div>
 
-        <div class="grid grid-cols-4 grid-rows-5 aspect-[4/5] bg-black/[0.5]">
+        <div class="grid grid-cols-4 grid-rows-5 aspect-[4/5]">
             @* Render from top to bottom (index 4 down to 0) *@
             @for (int r = 4; r >= 0; r--)
             {
-                int currentRow = r; // Local copy for the lambda expression
+                int currentRow = r;
                 for (int c = 0; c < 4; c++)
                 {
                     int currentCol = c;
-                    <div class="flex justify-center items-center cursor-pointer border border-white overflow-hidden" @onclick="() => TapTile(currentRow, currentCol)">
+                    <div class="flex justify-center items-center cursor-pointer border border-[var(--line)] overflow-hidden"
+                         @onclick="() => TapTile(currentRow, currentCol)">
                         @if (rows.Count > currentRow && rows[currentRow] == currentCol)
                         {
-                            <div class="w-[92%] h-[92%] rounded-2xl bg-purple-500 bg-[url('/images/character.png')] bg-cover bg-center shadow-[0_4px_10px_rgba(0,0,0,0.25)] transition-transform duration-75 ease-out"></div>
+                            <div class="w-[86%] h-[86%] rounded-xl bg-[#c25e53] bg-[url('/images/character.png')] bg-cover bg-center transition-all duration-100 @(currentRow == 0 ? "opacity-100 dg-pop shadow-[0_6px_18px_var(--glow)]" : "opacity-40")"></div>
                         }
                         @if (errorRow == currentRow && errorCol == currentCol)
                         {
-                            <div class="w-[92%] h-[92%] rounded-xl bg-red-500 shadow-[0_0_20px_rgba(255,59,59,0.8)]"></div>
+                            <div class="w-[86%] h-[86%] rounded-xl bg-[#e5484d] shadow-[0_0_22px_rgba(229,72,77,0.8)] dg-shake"></div>
                         }
                     </div>
                 }
@@ -42,16 +43,18 @@
 
         @if (!isPlaying)
         {
-            <div class="absolute inset-0 bg-[rgba(20,20,30,0.75)] backdrop-blur-sm flex flex-col justify-center items-center text-white gap-1.5">
-                @if (score > 0)
+            <div class="dg-overlay">
+                @if (score > 0 || errorRow >= 0)
                 {
-                    <h2 class="text-[26px] m-0 font-extrabold">Game Over!</h2>
-                    <p class="text-base opacity-85 m-0 mb-2.5">Score: @score</p>
+                    <h2>@(errorRow >= 0 ? "Missed tile" : "Time's up")</h2>
+                    <p>Score @score</p>
                 }
-                <button class="bg-gradient-to-r from-indigo-900/70 to-purple-900/70 backdrop-blur-md text-white border-none px-12 py-3 text-base rounded-full cursor-pointer font-bold tracking-wide mt-3.5 shadow-[0_8px_20px_rgba(255,71,133,0.5)] transition-all duration-100 hover:-translate-y-0.5 hover:shadow-[0_10px_26px_rgba(255,71,133,0.6)]"
-                        @onclick="StartGame">
-                    @(score > 0 ? "Play Again" : "Start Game")
-                </button>
+                else
+                {
+                    <h2>Tap Game</h2>
+                    <p>20 seconds. Hit the lit tile on the bottom row.</p>
+                }
+                <button class="dg-btn mt-4" @onclick="StartGame">@(score > 0 || errorRow >= 0 ? "Play again" : "Start game")</button>
             </div>
         }
     </div>
@@ -61,31 +64,20 @@
     private int timeLeft = 20;
     private int score = 0;
     private bool isPlaying = false;
-
     private List<int> rows = new();
-
     private Timer? timer;
-    private Random rand = new Random();
-
+    private Random rand = new();
     private int errorRow = -1;
     private int errorCol = -1;
 
-    protected override void OnInitialized()
-    {
-        InitializeGrid();
-    }
+    protected override void OnInitialized() => InitializeGrid();
 
     private void InitializeGrid()
     {
         rows.Clear();
         errorRow = -1;
         errorCol = -1;
-
-        // Populate the 5 visible rows
-        for (int i = 0; i < 5; i++)
-        {
-            rows.Add(rand.Next(0, 4));
-        }
+        for (int i = 0; i < 5; i++) rows.Add(rand.Next(0, 4));
     }
 
     private void StartGame()
@@ -95,11 +87,7 @@
         timeLeft = 20;
         isPlaying = true;
 
-        if (timer != null)
-        {
-            timer.Dispose();
-        }
-
+        timer?.Dispose();
         timer = new Timer(1000);
         timer.Elapsed += CountDown;
         timer.Start();
@@ -117,34 +105,23 @@
                 rows.RemoveAt(0);
                 rows.Add(rand.Next(0, 4));
             }
-            else
-            {
-                errorRow = rowIndex;
-                errorCol = colIndex;
-                EndGame();
-            }
+            else Fail(rowIndex, colIndex);
         }
-        else if (rows[rowIndex] != colIndex)
-        {
-            errorRow = rowIndex;
-            errorCol = colIndex;
-            EndGame();
-        }
+        else if (rows[rowIndex] != colIndex) Fail(rowIndex, colIndex);
+    }
+
+    private void Fail(int row, int col)
+    {
+        errorRow = row;
+        errorCol = col;
+        EndGame();
     }
 
     private void CountDown(object? sender, ElapsedEventArgs e)
     {
-        if (timeLeft > 1)
-        {
-            timeLeft--;
-            InvokeAsync(StateHasChanged);
-        }
-        else
-        {
-            timeLeft = 0;
-            EndGame();
-            InvokeAsync(StateHasChanged);
-        }
+        if (timeLeft > 1) timeLeft--;
+        else { timeLeft = 0; EndGame(); }
+        InvokeAsync(StateHasChanged);
     }
 
     private void EndGame()
@@ -153,8 +130,5 @@
         timer?.Stop();
     }
 
-    public void Dispose()
-    {
-        timer?.Dispose();
-    }
+    public void Dispose() => timer?.Dispose();
 }

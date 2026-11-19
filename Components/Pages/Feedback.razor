@@ -1,111 +1,125 @@
 @page "/feedback"
 @rendermode InteractiveServer
+@inject Supabase.Client Db
+@using MyBlazorAppBlanza.Models
+@using static Supabase.Postgrest.Constants
 
 <PageTitle>Rate & Comment</PageTitle>
 
-<div class="min-h-screen w-full bg-[linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.45)),url('/images/rate-bg.png')] bg-cover bg-center bg-no-repeat bg-fixed bg-black font-sans px-4 pt-32 pb-24 flex flex-col items-center gap-6">
+<div class="dg-page">
+    <div class="w-full max-w-xl flex flex-col gap-6 py-16">
 
-    @* ---------- Rating card (frosted glass over the background) ---------- *@
-    <section class="w-full max-w-xl rounded-3xl bg-white/70 backdrop-blur-xl shadow-2xl p-8 sm:p-10">
+        @* ---------- Rating card ---------- *@
+        <section class="dg-card p-8 sm:p-10 dg-rise">
 
-        @if (_submitted)
-        {
-            @* Confirmation state: replaces the form after a successful submit *@
-            <div class="text-center py-6">
-                <h1 class="text-3xl font-semibold text-slate-900">Thanks for the feedback</h1>
-                <p class="mt-2 text-slate-600">You rated us @_rating out of 5.</p>
-                <button @onclick="Reset"
-                        class="mt-6 px-6 py-2.5 rounded-full bg-slate-900 text-white font-medium hover:bg-slate-700 active:scale-95 transition">
-                    Leave another review
-                </button>
-            </div>
-        }
-        else
-        {
-            <h1 class="text-3xl font-semibold text-slate-900">How are we doing?</h1>
-            <p class="mt-1 text-slate-600">Pick a star rating and tell us what you think.</p>
+            @if (_submitted)
+            {
+                <div class="text-center py-6">
+                    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--acc),var(--acc2))] text-white shadow-[0_8px_22px_var(--glow)]">
+                        <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                    </div>
+                    <h1 class="dg-title text-3xl">Thanks for the feedback</h1>
+                    <p class="mt-2 text-[var(--sub)]">You rated us @_rating out of 5.</p>
+                    <button @onclick="Reset" class="dg-btn mt-6">Leave another review</button>
+                </div>
+            }
+            else
+            {
+                <p class="dg-eyebrow">Feedback</p>
+                <h1 class="dg-title text-3xl">How are we doing?</h1>
+                <p class="mt-2 text-[var(--sub)]">Pick a star rating and tell us what you think.</p>
 
-            @* Star row: hovering previews a rating, clicking locks it in *@
-            <div class="mt-6 flex items-center gap-1" @onmouseleave="() => _hover = 0" role="radiogroup" aria-label="Star rating">
-                @for (int i = 1; i <= 5; i++)
-                {
-                    int star = i; @* local copy so each button keeps its own value *@
-                    <button type="button"
-                            role="radio"
-                            aria-checked="@(_rating == star)"
-                            aria-label="@star star@(star > 1 ? "s" : "")"
-                            @onclick="() => _rating = star"
-                            @onmouseover="() => _hover = star"
-                            class="p-1 rounded-lg cursor-pointer transition-transform hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
-                        <svg viewBox="0 0 24 24" class="w-11 h-11 transition-colors @(star <= Shown ? "fill-amber-400 stroke-amber-500" : "fill-white/60 stroke-slate-400")" stroke-width="1.5" stroke-linejoin="round">
-                            <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8L12 2.5z" />
-                        </svg>
-                    </button>
-                }
-                <span class="ml-3 text-sm font-medium text-slate-700 min-w-20">@Label</span>
-            </div>
-
-            <div class="mt-6 flex flex-col gap-4">
-                <input @bind="_name" @bind:event="oninput" maxlength="40" placeholder="Your name (optional)"
-                       class="w-full px-4 py-3 rounded-xl bg-white/80 border border-white/60 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400" />
-
-                <textarea @bind="_comment" @bind:event="oninput" rows="4" maxlength="500" placeholder="Write a comment..."
-                          class="w-full px-4 py-3 rounded-xl bg-white/80 border border-white/60 text-slate-900 placeholder-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-amber-400"></textarea>
-
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-slate-500">@_comment.Length / 500</span>
-                    <button @onclick="Submit" disabled="@(_rating == 0)"
-                            class="px-6 py-2.5 rounded-full bg-slate-900 text-white font-medium hover:bg-slate-700 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100">
-                        Send feedback
-                    </button>
+                @* Hover previews a rating, click locks it in *@
+                <div class="mt-6 flex items-center gap-1" @onmouseleave="() => _hover = 0" role="radiogroup" aria-label="Star rating">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        int star = i;
+                        <button type="button"
+                                role="radio"
+                                aria-checked="@(_rating == star)"
+                                aria-label="@star star@(star > 1 ? "s" : "")"
+                                @onclick="() => _rating = star"
+                                @onmouseover="() => _hover = star"
+                                class="p-1 rounded-lg cursor-pointer transition-transform hover:scale-110 active:scale-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--acc)]">
+                            <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linejoin="round"
+                                 class="w-11 h-11 transition-all duration-200 @(star <= Shown ? "fill-[#e8896b] stroke-[#c25e53] drop-shadow-[0_0_10px_var(--glow)]" : "fill-transparent stroke-[var(--line)]")">
+                                <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8L12 2.5z" />
+                            </svg>
+                        </button>
+                    }
+                    @if (Shown > 0)
+                    {
+                        <span class="dg-chip ml-3">@Label</span>
+                    }
                 </div>
 
-                @if (!string.IsNullOrEmpty(_error))
-                {
-                    <p class="text-sm text-red-600">@_error</p>
-                }
-            </div>
-        }
-    </section>
+                <div class="mt-6 flex flex-col gap-4">
+                    <input @bind="_name" @bind:event="oninput" maxlength="40" placeholder="Your name (optional)"
+                           class="w-full px-4 py-3 rounded-xl bg-[var(--bg)] border border-[var(--line)] text-[var(--text)] placeholder-[var(--sub)] transition focus:outline-none focus:border-[var(--acc)] focus:ring-2 focus:ring-[var(--glow)]" />
 
-    @* ---------- Recent reviews ---------- *@
-    <section class="w-full max-w-xl">
-        @if (_reviews.Count == 0)
-        {
-            <p class="text-center text-white drop-shadow">No reviews yet. Yours could be the first.</p>
-        }
-        else
-        {
-            <div class="flex items-baseline justify-between mb-3 px-1 text-white drop-shadow">
-                <h2 class="text-xl font-semibold">What others said</h2>
-                <span class="text-sm">@Average.ToString("0.0") average from @_reviews.Count review@(_reviews.Count == 1 ? "" : "s")</span>
-            </div>
+                    <textarea @bind="_comment" @bind:event="oninput" rows="4" maxlength="500" placeholder="Write a comment..."
+                              class="w-full px-4 py-3 rounded-xl bg-[var(--bg)] border border-[var(--line)] text-[var(--text)] placeholder-[var(--sub)] resize-none transition focus:outline-none focus:border-[var(--acc)] focus:ring-2 focus:ring-[var(--glow)]"></textarea>
 
-            <ul class="flex flex-col gap-3">
-                @foreach (var r in _reviews.OrderByDescending(x => x.Date))
-                {
-                    <li class="rounded-2xl bg-white/70 backdrop-blur-xl shadow-lg p-5">
-                        <div class="flex items-center justify-between">
-                            <span class="font-medium text-slate-900">@r.Name</span>
-                            <span class="text-amber-500 tracking-widest" aria-label="@r.Stars out of 5">@(new string('★', r.Stars))<span class="text-slate-300">@(new string('★', 5 - r.Stars))</span></span>
-                        </div>
-                        @if (!string.IsNullOrWhiteSpace(r.Comment))
-                        {
-                            <p class="mt-2 text-slate-700 whitespace-pre-line">@r.Comment</p>
-                        }
-                        <p class="mt-2 text-xs text-slate-500">@r.Date.ToString("MMM d, yyyy")</p>
-                    </li>
-                }
-            </ul>
-        }
-    </section>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-[var(--sub)]">@_comment.Length / 500</span>
+                        <button @onclick="Submit" disabled="@(_rating == 0 || _saving)" class="dg-btn">
+                            @if (!_saving)
+                            {
+                                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4z" /></svg>
+                            }
+                            @(_saving ? "Sending..." : "Send feedback")
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(_error))
+                    {
+                        <p class="text-sm text-[#ff6b70]">@_error</p>
+                    }
+                </div>
+            }
+        </section>
+
+        @* ---------- Recent reviews ---------- *@
+        <section>
+            @if (_reviews.Count == 0)
+            {
+                <p class="text-center text-[var(--sub)]">No reviews yet. Yours could be the first.</p>
+            }
+            else
+            {
+                <div class="flex items-end justify-between mb-4 px-1">
+                    <h2 class="dg-title text-xl">What others said</h2>
+                    <span class="dg-chip"><b>@Average.ToString("0.0")</b> avg / @_reviews.Count review@(_reviews.Count == 1 ? "" : "s")</span>
+                </div>
+
+                <ul class="flex flex-col gap-3">
+                    @for (int i = 0; i < _reviews.Count; i++)
+                    {
+                        var r = _reviews[i];
+                        <li class="rounded-2xl bg-[var(--card)] border border-[var(--line)] p-5 transition duration-300 hover:-translate-y-1 hover:border-[var(--acc)] hover:shadow-[0_14px_32px_var(--glow)] dg-rise"
+                            style="animation-delay:@(Math.Min(i, 8) * 70)ms">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--acc),var(--deep))] text-sm font-bold text-white">@Initial(r.FeedbackName)</span>
+                                    <span class="truncate font-semibold">@r.FeedbackName</span>
+                                </div>
+                                @Stars(r.Rating)
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(r.FeedbackComment))
+                            {
+                                <p class="mt-3 text-[var(--sub)] leading-relaxed whitespace-pre-line">@r.FeedbackComment</p>
+                            }
+                            <p class="mt-3 text-xs text-[var(--sub)] opacity-70">@r.DateSubmitted.ToString("MMM d, yyyy")</p>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
 </div>
 
 @code {
-    // In-memory store. static so reviews survive navigating away and back,
-    // but they are shared by every visitor and reset when the app restarts.
-    // Swap this for a database/service when you're ready to persist them.
-    private static readonly List<Review> _reviews = new();
+    private List<MyBlazorAppBlanza.Models.Feedback> _reviews = new();
 
     private int _rating;
     private int _hover;
@@ -113,8 +127,8 @@
     private string _comment = "";
     private string? _error;
     private bool _submitted;
+    private bool _saving;
 
-    // Stars light up to the hovered value while hovering, otherwise to the chosen rating
     private int Shown => _hover > 0 ? _hover : _rating;
 
     private string Label => Shown switch
@@ -127,9 +141,46 @@
         _ => ""
     };
 
-    private double Average => _reviews.Count == 0 ? 0 : _reviews.Average(r => r.Stars);
+    private double Average => _reviews.Count == 0 ? 0 : _reviews.Average(r => r.Rating);
 
-    private void Submit()
+    private static string Initial(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? "?" : name.Trim()[..1].ToUpperInvariant();
+
+    // Small SVG star row for review cards
+    private RenderFragment Stars(int n) => @<span class="inline-flex gap-0.5 shrink-0" aria-label="@(n) out of 5">
+        @for (int s = 1; s <= 5; s++)
+        {
+            <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linejoin="round"
+                 class="w-4 h-4 @(s <= n ? "fill-[#e8896b] stroke-[#c25e53]" : "fill-transparent stroke-[var(--line)]")">
+                <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8L12 2.5z" />
+            </svg>
+        }
+    </span>;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        try
+        {
+            var res = await Db.From<MyBlazorAppBlanza.Models.Feedback>()
+                .Where(f => f.DeletedAt == null)
+                .Order(f => f.DateSubmitted, Ordering.Descending)
+                .Range(0, 49)
+                .Get();
+
+            _reviews = res.Models;
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load reviews: {ex.Message}";
+        }
+    }
+
+    private async Task Submit()
     {
         if (_rating == 0)
         {
@@ -137,16 +188,30 @@
             return;
         }
 
-        _reviews.Add(new Review
+        try
         {
-            Name = string.IsNullOrWhiteSpace(_name) ? "Anonymous" : _name.Trim(),
-            Stars = _rating,
-            Comment = _comment.Trim(),
-            Date = DateTime.Now
-        });
+            _saving = true;
+            _error = null;
 
-        _error = null;
-        _submitted = true;
+            await Db.From<MyBlazorAppBlanza.Models.Feedback>().Insert(new MyBlazorAppBlanza.Models.Feedback
+            {
+                FeedbackName = string.IsNullOrWhiteSpace(_name) ? "Anonymous" : _name.Trim(),
+                Rating = _rating,
+                FeedbackComment = _comment.Trim(),
+                DateSubmitted = DateTime.UtcNow
+            });
+
+            _submitted = true;
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to submit feedback: {ex.Message}";
+        }
+        finally
+        {
+            _saving = false;
+        }
     }
 
     private void Reset()
@@ -155,14 +220,7 @@
         _hover = 0;
         _name = "";
         _comment = "";
+        _error = null;
         _submitted = false;
-    }
-
-    private class Review
-    {
-        public string Name { get; set; } = "";
-        public int Stars { get; set; }
-        public string Comment { get; set; } = "";
-        public DateTime Date { get; set; }
     }
 }

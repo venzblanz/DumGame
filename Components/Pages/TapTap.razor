@@ -2,61 +2,44 @@
 @rendermode InteractiveServer
 @using System.Threading.Tasks
 
-<div class="min-h-screen w-full flex justify-center items-center bg-cover bg-center bg-no-repeat bg-[url('/images/bg3.png')] font-sans">
-    <!-- The flying particles -->
+<PageTitle>Tap Tap - DumGame</PageTitle>
+
+<div class="dg-page">
+    <a href="/pick" class="dg-back">
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        Games
+    </a>
+
     @foreach (var ball in activeBalls)
     {
         <div @key="ball.Id" class="small-ball" style="--tx: @(ball.TargetX)px; --ty: @(ball.TargetY)px;">
-            <img src="images/icon4.png" alt="small icon" class="w-full h-full rounded-full object-cover border-2 border-white bg-white" />
+            <img src="images/icon4.png" alt="" class="w-full h-full rounded-full object-cover border-2 border-[var(--acc2)] bg-[var(--card)]" />
         </div>
     }
 
-    <!-- The main clickable center icon -->
-    <div class="z-10 relative">
-        <button class="bg-transparent border-none p-0 cursor-pointer transition-transform duration-100 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] drop-shadow-[0px_10px_20px_rgba(0,0,0,0.6)] active:scale-90 active:drop-shadow-[0px_5px_10px_rgba(0,0,0,0.4)]"
-                @onclick="OnMainIconClicked">
-            <img src="images/icon4.png" alt="Main Icon" class="w-52 h-52 rounded-3xl object-cover" />
+    <div class="dg-chip">Taps <b>@taps</b></div>
+
+    <div class="relative mt-4">
+        <span class="dg-ring"></span>
+        <button class="relative block p-0 border-0 bg-transparent cursor-pointer rounded-3xl shadow-[0_20px_50px_var(--glow)] transition-transform duration-100 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] hover:scale-105 active:scale-90"
+                @onclick="OnMainIconClicked" aria-label="Tap">
+            <img src="images/icon4.png" alt="Main icon" class="w-52 h-52 rounded-3xl object-cover border-2 border-[var(--line)]" />
         </button>
     </div>
+
+    <p class="mt-4 text-sm text-[var(--sub)]">Keep tapping</p>
 </div>
 
-<style>
-    /* Kept as plain CSS: the animation target (--tx, --ty) is set dynamically
-       per-particle from C#, which Tailwind's static utility classes can't express. */
-    .small-ball {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 70px;
-        height: 70px;
-        margin-top: -35px;
-        margin-left: -35px;
-        pointer-events: none;
-        z-index: 20;
-        animation: burst 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-    }
-
-    @@keyframes burst {
-        0% {
-            transform: translate(0, 0) scale(0.5);
-            opacity: 1;
-        }
-        100% {
-            transform: translate(var(--tx), var(--ty)) scale(1.2);
-            opacity: 0;
-        }
-    }
-</style>
-
 @code {
-    private List<BallParticle> activeBalls = new List<BallParticle>();
-    private Random random = new Random();
+    private List<BallParticle> activeBalls = new();
+    private Random random = new();
+    private int taps = 0;
 
     private void OnMainIconClicked()
     {
-        // Spawns 3 to 5 balls per click for a satisfying visual effect
+        taps++;
         int spawnCount = random.Next(3, 6);
-        var newlySpawnedBalls = new List<BallParticle>();
+        var spawned = new List<BallParticle>();
 
         for (int i = 0; i < spawnCount; i++)
         {
@@ -67,21 +50,16 @@
                 TargetY = random.Next(-300, 301)
             };
             activeBalls.Add(ball);
-            newlySpawnedBalls.Add(ball);
+            spawned.Add(ball);
         }
 
-        _ = CleanupBallsAsync(newlySpawnedBalls);
+        _ = CleanupBallsAsync(spawned);
     }
 
     private async Task CleanupBallsAsync(List<BallParticle> ballsToRemove)
     {
         await Task.Delay(850);
-
-        foreach (var ball in ballsToRemove)
-        {
-            activeBalls.Remove(ball);
-        }
-
+        foreach (var ball in ballsToRemove) activeBalls.Remove(ball);
         await InvokeAsync(StateHasChanged);
     }
 

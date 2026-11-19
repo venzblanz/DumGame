@@ -1,13 +1,20 @@
+using Supabase.Postgrest.Attributes;
+using Supabase.Postgrest.Models;
+
 namespace MyBlazorAppBlanza.Models;
 
-public class User
+[Table("users")]
+public class User : BaseModel
 {
-    public int UserId { get; set; }
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-    public string PlayerName { get; set; } = string.Empty;
+    [PrimaryKey("id", false)]
+    public long Id { get; set; }
 
-    // One user has many scores and can leave many feedback entries
-    public List<Score> Scores { get; set; } = new();
-    public List<Feedback> Feedbacks { get; set; } = new();
+    [Column("username")]
+    public string Username { get; set; } = "";
+
+    [Column("password")]
+    public string Password { get; set; } = "";
+
+    [Column("player_name")]
+    public string PlayerName { get; set; } = "";
 }

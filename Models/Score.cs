@@ -1,17 +1,26 @@
+using Supabase.Postgrest.Attributes;
+using Supabase.Postgrest.Models;
+
 namespace MyBlazorAppBlanza.Models;
 
-public class Score
+[Table("scores")]
+public class Score : BaseModel
 {
-    public int ScoreId { get; set; }
+    [PrimaryKey("id", false)]
+    public long Id { get; set; }
 
-    // Named Points because a class can't have a member with the same name as itself
+    [Column("points")]
     public int Points { get; set; }
-    public DateTime DatePlayed { get; set; } = DateTime.Now;
 
-    // Foreign keys: this score belongs to one user and one game
-    public int UserId { get; set; }
-    public User? User { get; set; }
+    [Column("date_played")]
+    public DateTime DatePlayed { get; set; } = DateTime.UtcNow;
 
-    public int GameId { get; set; }
-    public Game? Game { get; set; }
+    [Column("user_id")]
+    public long UserId { get; set; }
+
+    [Column("game_id")]
+    public long GameId { get; set; }
+
+    [Column("deleted_at")]
+    public DateTime? DeletedAt { get; set; }   // null = active, filled = soft-deleted
 }
